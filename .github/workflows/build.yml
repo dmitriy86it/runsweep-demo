@@ -1,9 +1,10 @@
 name: build
 on: [push, workflow_dispatch]
-permissions: {contents: read, id-token: write}
+permissions: {contents: read}
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions: {contents: read, id-token: write}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: {persist-credentials: false}
@@ -13,4 +14,5 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         continue-on-error: true
         with: {role-to-assume: "arn:aws:iam::123456789012:role/demo-deploy", aws-region: eu-west-1}
-      - run: echo "notify ${{ secrets.DEMO_SLACK_WEBHOOK }}"
+      - run: test -n "$SLACK_WEBHOOK" && echo "notify configured"
+        env: {SLACK_WEBHOOK: "${{ secrets.DEMO_SLACK_WEBHOOK }}"}
